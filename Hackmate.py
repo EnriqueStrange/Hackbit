@@ -4,7 +4,6 @@ Created on Mon Apr 24 12:19:32 2023
 
 @author: Strange
 """
-# No Change
 
 import pyttsx3
 import datetime
