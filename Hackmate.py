@@ -5,6 +5,7 @@ Created on Mon Apr 24 12:19:32 2023
 @author: Strange
 """
 
+#
 import pyttsx3
 import datetime
 import speech_recognition as sr
