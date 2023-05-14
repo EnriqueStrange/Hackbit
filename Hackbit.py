@@ -76,6 +76,7 @@ class LinkProcessor:
         with concurrent.futures.ThreadPoolExecutor() as executor:
             executor.map(scan_subdomain, subdomains)
 
+    
 
 if __name__ == "__main__":
     pentest = LinkProcessor()
@@ -83,3 +84,4 @@ if __name__ == "__main__":
     pentest.process_link()
     pentest.get_ip_address()
     pentest.subdomain_scanner()
+    
