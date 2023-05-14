@@ -2,17 +2,11 @@ import requests
 import socket
 import concurrent.futures
 import requests
-import pyttsx3
-import datetime
 import speech_recognition as sr
-import wikipedia
-import time
-import threading
 from queue import Queue
 from colored import fore, back, style
 from bs4 import BeautifulSoup
 import requests.exceptions
-import urllib.parse
 from collections import deque
 import re
 import paramiko
@@ -49,14 +43,30 @@ class LinkProcessor:
         print(f"Your system IP is {ip_address}")
 
     def subdomain_scanner(self):
-        subdomain = self.link
+        domain = self.link
 
         def scan_subdomain(subdomain):
-            url = f"http://{subdomain}.example.com"  # Replace with your target domain
+            domain = self.link
+            """
+            The regular expression pattern r"(https?://)([a-zA-Z0-9.-]+)(\.[a-zA-Z]{2,63}\b)"
+            is used to match and capture the different parts of the URL:
+            (https?://): Matches the protocol (http:// or https://) and captures it in group 1.
+            ([a-zA-Z0-9.-]+): Matches and captures the subdomain in group 2. It can consist of 
+            letters, numbers, dots, and hyphens.
+            (\.[a-zA-Z]{2,63}\b): Matches and captures the domain and top-level domain (TLD) in 
+            group 3. It matches a dot followed by 2 to 63 letters.
+            """
+            pattern = r"(https?://)([a-zA-Z0-9.-]+)(\.[a-zA-Z]{2,63}\b)"
+            """The re.sub function is then used to substitute the matched subdomain (\2) with 
+            the desired string. The \1 and \3 references the captured protocol and domain parts, 
+            respectively."""
+            url = re.sub(pattern, r"\1" + subdomain + r"\2\3", domain)
             try:
                 response = requests.get(url)
                 if response.status_code == 200:
-                    print(f"Subdomain found: {subdomain}")
+                    print(f"Subdomain found: {url}")
+                    with open("test_url.txt", "w") as file:
+                        file.write(url + "\n")
             except requests.ConnectionError:
                 pass
 
